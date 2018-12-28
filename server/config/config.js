@@ -7,6 +7,12 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 // Base de Datos
 let urlDB;
 
+// Fecha de Expiracion de Token
+process.env.CADUCIDAD_TOKEN = 60 * 60 * 24 * 30;
+
+// SEED de autenticacion
+process.env.SEED = process.env.SEED || 'Seed-De-Desarrollo'
+
 if (process.env.NODE_ENV === 'dev') urlDB = 'mongodb://localhost:27017/cafe';
 else urlDB = process.env.MONGO_URI;
 
