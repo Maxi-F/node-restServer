@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const bodyParser = require('body-parser');
+const path = require('path')
 require('./config/config');
 
 //.use: cada vez que se hace una peticion (ya sea GET, POST, etc.) se ejecutan estas funciones (se llaman middleware).
@@ -13,6 +14,8 @@ app.use(bodyParser.json());
 
 // Configuracion global de rutas
 app.use(require('./routes/index'));
+
+app.use(express.static(path.resolve(__dirname, '../public')))
 
 mongoose.connect(process.env.URLDB, {
     useNewUrlParser: true,
