@@ -4,22 +4,8 @@ const { verificaToken, verificaAdminRole } = require('../middlewares/autenticaci
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
 const app = express();
+const { devolverError, respuestaGenerica } = require('../logic/logic');
 
-
-const respuestaDeError = (err, respuestaPeticion) => {
-    return respuestaPeticion.status(400).json({
-        ok: false,
-        err
-    });
-};
-
-const respuestaGenerica = (res, usuarioDB) => {
-    res.json({
-        ok: true,
-        usuario: usuarioDB
-    });
-
-};
 //GET: Obtener informacion de la base de datos.
 app.get('/usuario', verificaToken, function(req, res) {
 
@@ -36,7 +22,7 @@ app.get('/usuario', verificaToken, function(req, res) {
         .limit(limite)
         .exec((err, usuariosDB) => {
             Usuario.count(usuariosActivos, (err, counting) => {
-                if (err) return respuestaDeError(err, res);
+                if (err) return devolverError(res, 400, err);
                 else return res.json({
                     ok: true,
                     usuarios: usuariosDB,
@@ -58,8 +44,8 @@ app.post('/usuario', [verificaToken, verificaAdminRole], function(req, res) {
     });
 
     usuario.save((err, usuarioDB) => {
-        if (err) return respuestaDeError(err, res);
-        else return respuestaGenerica(res, usuarioDB);
+        if (err) return devolverError(res, 400, err);
+        else return respuestaGenerica(res, 'usuario', usuarioDB);
     });
 })
 
@@ -69,8 +55,8 @@ app.put('/usuario/:id', [verificaToken, verificaAdminRole], function(req, res) {
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
 
     Usuario.findByIdAndUpdate(id, body, { runValidators: true, new: true }, (err, usuarioDB) => {
-        if (err) return respuestaDeError(err, res);
-        else return respuestaGenerica(res, usuarioDB);
+        if (err) return devolverError(res, 400, err);
+        else return respuestaGenerica(res, 'usuario', usuarioDB);
     });
 })
 
@@ -82,8 +68,8 @@ app.delete('/usuario/:id', [verificaToken, verificaAdminRole], function(req, res
     };
     /* eliminacion fisica
     Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
-        if (err) return respuestaDeError(err, res);
-        if (!usuarioBorrado) return respuestaDeError({ message: 'usuario no encontrado' }, res);
+        if (err) return devolverError(err, res);
+        if (!usuarioBorrado) return devolverError({ message: 'usuario no encontrado' }, res);
         res.json({
             ok: true,
             usuario: usuarioBorrado
@@ -92,8 +78,8 @@ app.delete('/usuario/:id', [verificaToken, verificaAdminRole], function(req, res
     */
 
     Usuario.findByIdAndUpdate(id, cambiaEstado, { new: true }, (err, usuarioDB) => {
-        if (err) return respuestaDeError(err, res)
-        else return respuestaGenerica(res, usuarioDB);
+        if (err) return devolverError(res, 400, err);
+        else return respuestaGenerica(res, 'usuario', usuarioDB);
     });
 });
 

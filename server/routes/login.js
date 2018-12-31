@@ -5,23 +5,7 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.CLIENT_ID);
 const Usuario = require('../models/usuario');
 const app = express();
-
-const devolverError = (response, statusNum, err) => response.status(statusNum).json({
-    ok: false,
-    error: err
-})
-
-const devolverRespuestaToken = (response, usuarioDB) => {
-    let token = jwt.sign({
-        usuario: usuarioDB
-    }, process.env.SEED, { expiresIn: process.env.CADUCIDAD_TOKEN });
-
-    return response.json({
-        ok: true,
-        usuario: usuarioDB,
-        token
-    })
-}
+const { devolverError, devolverRespuestaToken } = require('../logic/logic')
 
 app.post('/login', (req, res) => {
     let body = req.body;
@@ -32,9 +16,7 @@ app.post('/login', (req, res) => {
 
         return devolverRespuestaToken(res, usuarioDB);
     })
-
-
-})
+});
 
 // configuraciones de google
 async function verify(token) {
@@ -56,6 +38,7 @@ async function verify(token) {
 app.post('/google', async(req, res) => {
     let token = req.body.idtoken;
     let googleUser;
+
     try {
         googleUser = await verify(token)
     } catch (err) {
