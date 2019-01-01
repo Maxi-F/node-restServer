@@ -1,10 +1,10 @@
-// Puerto
+// Port
 process.env.PORT = process.env.PORT || 3000;
 
-// Entorno
+// Enviroment
 process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 
-// Base de Datos
+// Data Base
 let urlDB;
 
 if (process.env.NODE_ENV === 'dev') urlDB = 'mongodb://localhost:27017/cafe';
@@ -12,10 +12,10 @@ else urlDB = process.env.MONGO_URI;
 
 process.env.URLDB = urlDB;
 
-// Fecha de Expiracion de Token
-process.env.CADUCIDAD_TOKEN = '48h';
+// Token expiration
+process.env.TOKEN_EXPIRATION = '48h';
 
-// SEED de autenticacion
+// autentication Seed
 process.env.SEED = process.env.SEED || 'Seed-De-Desarrollo'
 
 // Google Client ID

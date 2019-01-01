@@ -3,18 +3,18 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.CLIENT_ID);
-const Usuario = require('../models/usuario');
+const User = require('../models/user');
 const app = express();
-const { devolverError, devolverRespuestaToken } = require('../logic/logic')
+const { returnError, devolverRespuestaToken } = require('../logic/logic')
 
 app.post('/login', (req, res) => {
     let body = req.body;
-    Usuario.findOne({ email: body.email }, (err, usuarioDB) => {
-        if (err) return devolverError(res, 500, err);
+    User.findOne({ email: body.email }, (err, userDB) => {
+        if (err) return returnError(res, 500, err);
 
-        if (!usuarioDB || !bcrypt.compareSync(body.password, usuarioDB.password)) return devolverError(res, 400, "Usuario o contraseña incorrectos");
+        if (!userDB || !bcrypt.compareSync(body.password, userDB.password)) return returnError(res, 400, "User o contraseña incorrectos");
 
-        return devolverRespuestaToken(res, usuarioDB);
+        return devolverRespuestaToken(res, userDB);
     })
 });
 
@@ -28,7 +28,7 @@ async function verify(token) {
     const payload = ticket.getPayload();
 
     return {
-        nombre: payload.name,
+        name: payload.name,
         email: payload.email,
         img: payload.picture,
         google: true
@@ -42,32 +42,32 @@ app.post('/google', async(req, res) => {
     try {
         googleUser = await verify(token)
     } catch (err) {
-        devolverError(res, 403, "Token no Valido");
+        returnError(res, 403, "Token no Valido");
     }
 
-    Usuario.findOne({ email: googleUser.email }, (err, usuarioDB) => {
+    User.findOne({ email: googleUser.email }, (err, userDB) => {
         if (err) {
 
-            return devolverError(res, 500, err);
+            return returnError(res, 500, err);
 
-        } else if (usuarioDB) {
-            if (!usuarioDB.google) {
-                return devolverError(res, 400, "Debe ingresar con la autenticacion normal");
+        } else if (userDB) {
+            if (!userDB.google) {
+                return returnError(res, 400, "Debe ingresar con la autentication normal");
 
             } else {
-                return devolverRespuestaToken(res, usuarioDB);
+                return devolverRespuestaToken(res, userDB);
             };
-        } else { // Crear un nuevo usuario en la base de datos
-            let usuario = new Usuario({
-                nombre: googleUser.nombre,
+        } else { // Crear un nuevo user en la base de datos
+            let user = new User({
+                name: googleUser.name,
                 email: googleUser.email,
                 img: googleUser.img,
                 google: true,
                 password: ':c' // No importa que ponga aca, ya que nunca va a poder matchear (Las contraseñas para el login se hashean 10 veces, nunca va a matchear con una carita triste :c)
             });
-            usuario.save((err, usuarioDB) => {
-                if (err) return devolverError(res, 500, err);
-                else return devolverRespuestaToken(res, usuario);
+            user.save((err, userDB) => {
+                if (err) return returnError(res, 500, err);
+                else return devolverRespuestaToken(res, user);
             })
         }
     })

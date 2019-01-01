@@ -1,35 +1,35 @@
 const jwt = require('jsonwebtoken');
 
-// devolver un error
-const devolverError = (response, statusNum, err) => response.status(statusNum).json({
+// Return an error on the response
+const returnError = (response, statusNum, err) => response.status(statusNum).json({
     ok: false,
     error: err
 })
 
-// devolver todo bien
-const respuestaGenerica = (res, typeOfItem, itemDB) => {
+// Return OK to the response
+const genericResponse = (res, typeOfItem, item) => {
     let response = {
         ok: true
     };
-    response[typeOfItem] = itemDB;
+    response[typeOfItem] = item;
     return res.json(response);
 };
 
-// devolver todo bien, con token
-const devolverRespuestaToken = (response, usuarioDB) => {
+// Return all OK, with a token (for user login)
+const devolverRespuestaToken = (response, userDB) => {
     let token = jwt.sign({
-        usuario: usuarioDB
-    }, process.env.SEED, { expiresIn: process.env.CADUCIDAD_TOKEN });
+        user: userDB
+    }, process.env.SEED, { expiresIn: process.env.TOKEN_EXPIRATION });
 
     return response.json({
         ok: true,
-        usuario: usuarioDB,
+        user: userDB,
         token
     })
-}
+};
 
 module.exports = {
-    devolverError,
-    respuestaGenerica,
+    returnError,
+    genericResponse,
     devolverRespuestaToken
 }
