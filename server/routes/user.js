@@ -34,7 +34,7 @@ app.get('/user', verifiesTokenByHeader, function(req, res) {
 });
 
 //POST: Create registries in the database.
-app.post('/user', function(req, res) {
+app.post('/user', [verifiesTokenByHeader, verifiesAdminRole], function(req, res) {
     let body = req.body;
     let user = new User({
         name: body.name,
