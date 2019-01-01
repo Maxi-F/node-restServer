@@ -12,7 +12,7 @@ app.post('/login', (req, res) => {
     User.findOne({ email: body.email }, (err, userDB) => {
         if (err) return returnError(res, 500, err);
 
-        if (!userDB || !bcrypt.compareSync(body.password, userDB.password)) return returnError(res, 400, "User o contraseña incorrectos");
+        if (!userDB || !bcrypt.compareSync(body.password, userDB.password)) return returnError(res, 400, "incorrect user or password");
 
         return devolverRespuestaToken(res, userDB);
     })
@@ -42,7 +42,7 @@ app.post('/google', async(req, res) => {
     try {
         googleUser = await verify(token)
     } catch (err) {
-        returnError(res, 403, "Token no Valido");
+        returnError(res, 403, "Token not valid");
     }
 
     User.findOne({ email: googleUser.email }, (err, userDB) => {
